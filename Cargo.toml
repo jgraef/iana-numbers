@@ -2,6 +2,6 @@
 resolver = "2"
 members = [
     "iana-ports",
-    #"iana-ethertype",
+    "iana-ethertype",
     "iana-build-tools",
 ]

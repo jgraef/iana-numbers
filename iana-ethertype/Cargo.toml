@@ -1,0 +1,11 @@
+[package]
+name = "iana-ethertype"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+phf = "0.11.2"
+
+[build-dependencies]
+iana-build-tools = { path = "../iana-build-tools" }
+serde = { version = "1.0.202", features = ["derive"] }
