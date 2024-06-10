@@ -1,3 +1,11 @@
-/target
+# OS
+Thumbs.db
+.DS_Store
+
+# Editors
+.vscode/
+.idea/
+
+# Rust
 /Cargo.lock
-/.cargo
+/target

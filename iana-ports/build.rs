@@ -1,19 +1,18 @@
 use std::{
     collections::HashMap,
     fmt::Write as _,
-    fs::File,
     hash::Hash,
-    io::{
-        BufWriter,
-        Write as _,
-    },
-    path::PathBuf,
+    io::Write as _,
 };
 
-use color_eyre::eyre::Error;
-use phf::PhfHash;
-use phf_codegen::Map;
-use phf_shared::FmtConst;
+use iana_build_tools::{
+    phf::{
+        phf::PhfHash,
+        phf_codegen::Map,
+        phf_shared::FmtConst,
+    },
+    Error,
+};
 use serde::Deserialize;
 
 const SERVICE_NAMES_FILE: &'static str = "service-names-port-numbers.csv";
@@ -52,24 +51,17 @@ enum TransportProtocol {
 }
 
 fn main() -> Result<(), Error> {
-    //let manifest_dir = PathBuf::from(std::env::var("CARGO_MANIFEST_DIR")?);
-    //let input_file = manifest_dir.join(SERVICE_NAMES_FILE);
-    println!("cargo::rerun-if-changed={}", SERVICE_NAMES_FILE);
-
-    let out_dir = PathBuf::from(std::env::var("OUT_DIR")?);
-    let out_file = File::create(out_dir.join("generated.rs"))?;
-    let mut writer = BufWriter::new(out_file);
+    let mut writer = iana_build_tools::out_file("generated.rs");
     writeln!(&mut writer, "use crate::{{Service, TransportProtocol}};")?;
 
-    let mut reader = csv::Reader::from_path(SERVICE_NAMES_FILE)?;
+    let records = iana_build_tools::parse::<Record>(SERVICE_NAMES_FILE);
+
     let mut by_port: HashMap<u16, Vec<usize>> = HashMap::new();
     let mut by_name: HashMap<String, Vec<usize>> = HashMap::new();
 
     writeln!(&mut writer, "pub const SERVICES: &'static [Service] = &[")?;
     let mut i = 0;
-    for record in reader.deserialize::<Record>() {
-        let record = record?;
-
+    for record in records {
         if record.service_name.is_empty() {
             continue;
         }
